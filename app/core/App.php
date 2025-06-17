@@ -21,7 +21,7 @@ class App {
          * if not, then go to this->controller which is defaulted to home 
          */
 
-        if (file_exists('app/controllers/' . $url[1] . '.php')) {
+        if (isset($url[1]) && file_exists('app/controllers/' . $url[1] . '.php')) {
             $this->controller = $url[1];
 
             $_SESSION['controller'] = $this->controller;
