@@ -7,16 +7,16 @@ class Create extends Controller {
 
     }
   public function newUser() {
-    $username = $_POST['username'] ??'';
-    $password = $_POST['password'] ??'';
-    $verifypassword = $_POST['verifypassword'] ??'';
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $verifypassword = $_POST['verifypassword'] ?? '';
 
     $username = strtolower(trim($username));
     $password = trim($password);
     $verifypassword = trim($verifypassword);
 
     $user = $this->model('User');
-    $user->createUser($username, $password, $verifypassword);
+    $user->create($username, $password, $verifypassword);
   }
 }
 ?>
