@@ -1,6 +1,8 @@
 <?php
 require_once 'app/views/templates/headerPublic.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 $error = $_SESSION["createError"] ?? '';
 ?>
