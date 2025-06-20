@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
 
 class Log {
 
@@ -8,13 +10,15 @@ class Log {
     $stmt = $db->prepare("SELECT * FROM logs;");
     $stmt->execute();
     $rows = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $rows;
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
   public function getFailedAttempts($username) {
     $db = db_connect();
-    $sql = "SELECT COUNT(*) AS failed_attempts FROM logs WHERE username = :name AND attempt
-    = 'bad'
+    $sql = "SELECT COUNT(*) AS failed_attempts
+    FROM logs
+    WHERE username = :name 
+    AND attempt = 'bad'
     AND time > NOW() - INTERVAL 60 SECOND";
 
     $stmt = $db->prepare($sql);

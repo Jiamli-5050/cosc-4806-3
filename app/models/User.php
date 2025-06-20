@@ -26,12 +26,17 @@ class User {
         $statement->execute();
         $rows = $statement->fetch(PDO::FETCH_ASSOC);
 
+      require_once 'Log.php';
+      $log = new Log();
+
       if($rows && password_verify($password, $rows['password'])){
           $_SESSION['auth'] = 1;
           $_SESSION['username'] = ucfirst($username);
+          $log->logAttempt($username, 'good');
         header("Location: /home");
         exit;
       } else {
+        $log->logAttempt($username, 'bad');
         $_SESSION["login_error"] = "Invalid username or password.";
         header("Location: /login");
         exit;
