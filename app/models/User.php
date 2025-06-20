@@ -20,16 +20,24 @@ class User {
 
     public function authenticate($username, $password) {
 		$username = strtolower($username);
-		$db = db_connect();
-        $statement = $db->prepare("select * from users WHERE username = :name;");
-        $statement->bindValue(':name', $username);
-        $statement->execute();
-        $rows = $statement->fetch(PDO::FETCH_ASSOC);
-
       require_once 'Log.php';
       $log = new Log();
 
-      if($rows && password_verify($password, $rows['password'])){
+    
+      $attempts = $log->getFailedAttempts($username);
+      if ($attempts && $attempts['failed_attempts'] >= 3) {
+          $_SESSION["login_error"] = "Too many failed attempts. Please try again in 60 seconds.";
+          header("Location: /login");
+          exit;
+      }
+
+      $db = db_connect();
+      $statement = $db->prepare("select * from users WHERE username = :name;");
+      $statement->bindValue(':name', $username);
+      $statement->execute();
+      $rows = $statement->fetch(PDO::FETCH_ASSOC);
+
+      if ($rows && password_verify($password, $rows['password'])) {
           $_SESSION['auth'] = 1;
           $_SESSION['username'] = ucfirst($username);
           $log->logAttempt($username, 'good');
@@ -44,7 +52,7 @@ class User {
     }
 
    //register new user
-    public function create($username, $password, $verifypassword){
+    public function create($username, $password, $verifypassword) {
       $username = strtolower(trim($username));
       $password = trim($password);
       $verifypassword = trim($verifypassword);
@@ -54,11 +62,12 @@ class User {
         header("Location: /create");
         exit;
       }
-      if (strlen($password) <8) {
+      if (strlen($password) < 8) {
         $_SESSION["createError"] = "Password must be at least 8 characters.";
         header("Location: /create");
         exit;
       }
+      
       $db = db_connect();
       $check = $db->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
       $check->execute([$username]);
