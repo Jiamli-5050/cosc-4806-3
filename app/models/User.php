@@ -19,32 +19,61 @@ class User {
     }
 
     public function authenticate($username, $password) {
-        /*
-         * if username and password good then
-         * $this->auth = true;
-         */
 		$username = strtolower($username);
 		$db = db_connect();
         $statement = $db->prepare("select * from users WHERE username = :name;");
         $statement->bindValue(':name', $username);
         $statement->execute();
         $rows = $statement->fetch(PDO::FETCH_ASSOC);
-		
-		if (password_verify($password, $rows['password'])) {
-			$_SESSION['auth'] = 1;
-			$_SESSION['username'] = ucwords($username);
-			unset($_SESSION['failedAuth']);
-			header('Location: /home');
-			die;
-		} else {
-			if(isset($_SESSION['failedAuth'])) {
-				$_SESSION['failedAuth'] ++; //increment
-			} else {
-				$_SESSION['failedAuth'] = 1;
-			}
-			header('Location: /login');
-			die;
-		}
+
+      if($rows && password_verify($password, $rows['password'])){
+          $_SESSION['auth'] = 1;
+          $_SESSION['username'] = ucfirst($username);
+        header("Location: /home");
+        exit;
+      } else {
+        $_SESSION["login_error"] = "Invalid username or password.";
+        header("Location: /login");
+        exit;
+      }
     }
 
+   //register new user
+    public function create($username, $password, $verifypassword){
+      $username = strtolower(trim($username));
+      $password = trim($password);
+      $verifypassword = trim($verifypassword);
+
+      if (empty($username) || empty($password) || empty($verifypassword)) {
+        $_SESSION["create_error"] = "Please fill in all fields.";
+        header("Location: /create");
+        exit;
+      }
+      if (strlen($password) <8) {
+        $_SESSION["createError"] = "Password must be at least 8 characters.";
+        header("Location: /create");
+        exit;
+      }
+      $db = db_connect();
+      $check = $db->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+      $check->execute([$username]);
+      if ($check->fetchColumn() > 0) {
+        $_SESSION["createError"] = "Username already exists.";
+        header("Location: /create");
+        exit;
+      }
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $insert = $db->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    if ($insert->execute([$username, $hashed])) {
+      $_SESSION['auth'] = 1;
+      $_SESSION['username'] = ucfirst($username);
+      header("Location: /home");
+      exit;
+    } else {
+      $_SESSION["createError"] = "Error creating user, please try again.";
+      header("Location: /create");
+      exit;
+    }
+  }
 }
+
