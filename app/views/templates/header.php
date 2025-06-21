@@ -44,6 +44,12 @@ if (!isset($_SESSION['auth'])) {
           <a class="nav-link disabled">Disabled</a>
         </li>
       </ul>
+      <span class="navbar-text text-white ms-auto"> 
+        <?php 
+        date_default_timezone_set('America/Toronto'); 
+        echo date('l, F j') . date('S') . date(', Y');
+        ?>
+      </span>
     </div>
   </div>
 </nav>
