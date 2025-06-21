@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
+
 $error = $_SESSION["createError"] ?? '';
 ?>
 <main class="container">
@@ -15,12 +16,15 @@ $error = $_SESSION["createError"] ?? '';
     <div class="alert alert-danger"> <?php echo $error; ?> </div>
   <?php endif; ?>
 
+  <!-- Create Account Form -->
   <form action="/create/newUser" method="POST">
     <div class="form-group">
       <label for="username">Username:</label>
       <input type ="text" name="username" class="form-control" required>
       </div>
 
+    <!-- Password validation -->
+    <!-- At least 8 characters long -->
     <div class="form-group">
       <label>Password:</label>
       <input type="password" name="password" class="form-control"

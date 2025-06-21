@@ -6,6 +6,7 @@ class Create extends Controller {
 	    $this->view('create/index');
 
     }
+  // Create a new user
   public function newUser() {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
